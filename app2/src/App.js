@@ -10,7 +10,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [], // Initialize data state
+      data: [],
       selectedXVariable: "total_bill",
       selectedYVariable: "tip",
     };
@@ -26,7 +26,7 @@ class App extends Component {
       };
     })
       .then(function (csv_data) {
-        self.setState({ data: csv_data }); // Store data in state
+        self.setState({ data: csv_data });
       })
       .catch(function (err) {
         console.log(err);
@@ -55,8 +55,7 @@ class App extends Component {
             >
               <option value="total_bill">Total Bill</option>
               <option value="tip">Tip</option>
-              <option value="size">Size</option> {/* Add size option */}
-              {/* Add more options for other variables */}
+              <option value="size">Size</option>
             </select>
             <label>Y Variable:</label>
             <select
@@ -65,12 +64,11 @@ class App extends Component {
             >
               <option value="tip">Tip</option>
               <option value="total_bill">Total Bill</option>
-              <option value="size">Size</option> {/* Add size option */}
-              {/* Add more options for other variables */}
+              <option value="size">Size</option>
             </select>
           </div>
         </div>
-        <div className="charts">
+        <div className="charts-row">
           <div className="chart">
             <h2>Bar Chart</h2>
             <BarChart
@@ -80,17 +78,17 @@ class App extends Component {
             />
           </div>
           <div className="chart">
-            <h2>Scatterplot</h2>
-            <Scatterplot
-              data={data}
-              xVariable={selectedXVariable}
-              yVariable={selectedYVariable}
-            />
-          </div>
-          <div className="chart">
             <h2>Correlation Matrix</h2>
-            <CorrelationMatrix rawData={data} /> {/* Pass data as rawData prop */}
+            <CorrelationMatrix rawData={data} />
           </div>
+        </div>
+        <div className="chart scatterplot">
+          <h2>Scatterplot</h2>
+          <Scatterplot
+            data={data}
+            xVariable={selectedXVariable}
+            yVariable={selectedYVariable}
+          />
         </div>
       </div>
     );
