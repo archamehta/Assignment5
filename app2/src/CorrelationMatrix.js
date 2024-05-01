@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 
 const CorrelationMatrix = ({ rawData }) => {
   const chartRef = useRef();
+  const legendRef = useRef();
 
   useEffect(() => {
     if (!rawData || rawData.length === 0) return;
@@ -17,6 +18,7 @@ const CorrelationMatrix = ({ rawData }) => {
 
     // Draw chart
     drawChart(filteredData);
+    drawLegend();
   }, [rawData]);
 
   const drawChart = (data) => {
@@ -55,7 +57,7 @@ const CorrelationMatrix = ({ rawData }) => {
 
     svg.selectAll()
       .data(matrix)
-      .enter().append('rect')
+      .join('rect') // Use join instead of append
       .attr('x', d => x(d.colVar))
       .attr('y', d => y(d.rowVar))
       .attr('width', x.bandwidth())
@@ -64,7 +66,7 @@ const CorrelationMatrix = ({ rawData }) => {
 
     svg.selectAll()
       .data(matrix)
-      .enter().append('text')
+      .join('text') // Use join instead of append
       .attr('x', d => x(d.colVar) + x.bandwidth() / 2)
       .attr('y', d => y(d.rowVar) + y.bandwidth() / 2)
       .attr('dy', '0.35em')
@@ -74,7 +76,7 @@ const CorrelationMatrix = ({ rawData }) => {
 
     svg.selectAll('.rowLabel')
       .data(variables)
-      .enter().append('text')
+      .join('text') // Use join instead of append
       .attr('class', 'rowLabel')
       .attr('x', margin.left - 20)
       .attr('y', (d, i) => y(variables[i]) + y.bandwidth() / 2)
@@ -84,7 +86,7 @@ const CorrelationMatrix = ({ rawData }) => {
 
     svg.selectAll('.colLabel')
       .data(variables)
-      .enter().append('text')
+      .join('text') // Use join instead of append
       .attr('class', 'colLabel')
       .attr('x', (d, i) => x(variables[i]) + x.bandwidth() / 2)
       .attr('y', margin.top + height + 20)
@@ -93,15 +95,65 @@ const CorrelationMatrix = ({ rawData }) => {
       .text(d => d);
 
     svg.append('g')
-      .attr('transform', `translate(0, ${margin.top})`) // Fix syntax
+      .attr('transform', `translate(0, ${margin.top})`)
       .call(d3.axisLeft(y));
 
     svg.append('g')
-      .attr('transform', `translate(${margin.left}, 0)`) // Fix syntax
+      .attr('transform', `translate(${margin.left}, 0)`)
       .call(d3.axisTop(x));
   };
 
-  return <svg ref={chartRef} width={600} height={600} />;
+  const drawLegend = () => {
+    const svg = d3.select(legendRef.current);
+    svg.selectAll('*').remove();
+
+    const colorScale = d3.scaleLinear()
+      .domain([0, 1])
+      .range(['#ffffff', '#000000']); // Define the color range from white to black
+
+    const legendWidth = 20; // Reduce width for a vertical legend
+    const legendHeight = 200; // Increase the height for a vertical legend
+
+    // Create a gradient for the legend
+    svg.append("defs")
+      .append("linearGradient")
+      .attr("id", "gradientLegend")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%") // Vertical gradient
+      .attr("y2", "100%") // Vertical gradient
+      .selectAll("stop")
+      .data(colorScale.ticks(10)) // Adjust the number of ticks as needed
+      .enter().append("stop")
+      .attr("offset", (d, i) => (i * 100) / 9 + "%")
+      .attr("stop-color", d => colorScale(d));
+
+    // Draw the legend rectangle
+    svg.append("rect")
+      .attr("width", legendWidth) // Adjust width for a vertical legend
+      .attr("height", legendHeight)
+      .style("fill", "url(#gradientLegend)")
+      .attr("transform", "translate(0,10)");
+
+    // Add legend labels
+    const tickValues = colorScale.ticks(10); // Adjust the number of ticks as needed
+    svg.selectAll(".legendLabel")
+      .data(tickValues)
+      .enter().append("text")
+      .attr("class", "legendLabel")
+      .attr("x", 25) // Adjust x-position for text
+      .attr("y", (d, i) => (i * legendHeight) / (tickValues.length - 1) + 10) // Adjust y-position for text
+      .attr("dy", "0.35em")
+      .style("text-anchor", "start")
+      .text(d => d.toFixed(2)); // Format tick values as needed
+  };
+
+  return (
+    <div>
+      <svg ref={chartRef} width={600} height={600} />
+      <svg ref={legendRef} width={50} height={220} />
+    </div>
+  );
 };
 
 export default CorrelationMatrix;

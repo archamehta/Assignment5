@@ -36,3 +36,29 @@
     transform: rotate(360deg);
   }
 }
+.row {
+  display: flex;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.chart {
+  margin: 10px;
+}
+
+.charts-row {
+  display: flex;
+  flex: 1; /* This allows the row to flex and take up remaining space */
+  justify-content: flex-start; /* Align items to the left */
+}
+
+.scatterplot {
+  flex-grow: 1; /* This makes the Scatterplot take up all available space */
+  align-self: stretch; /* This ensures the Scatterplot stretches vertically to match the row height */
+}
+

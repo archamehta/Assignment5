@@ -1,3 +1,4 @@
+// App.js
 import React, { Component } from "react";
 import "./App.css";
 import BarChart from "./BarChart";
@@ -20,6 +21,7 @@ class App extends Component {
     var self = this;
     d3.csv(tips, function (d) {
       return {
+        day: d.day,
         tip: parseFloat(d.tip),
         total_bill: parseFloat(d.total_bill),
         size: parseInt(d.size) // Parse size to integer
@@ -46,7 +48,7 @@ class App extends Component {
     return (
       <div className="container">
         <div className="header">
-          <h1>Dashboard</h1>
+          <h1>Assignment 5</h1>
           <div className="dropdowns">
             <label>X Variable:</label>
             <select
@@ -73,7 +75,6 @@ class App extends Component {
             <h2>Bar Chart</h2>
             <BarChart
               data={data}
-              xVariable={selectedXVariable}
               yVariable={selectedYVariable}
             />
           </div>
