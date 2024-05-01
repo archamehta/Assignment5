@@ -1,18 +1,31 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 
 const BarChart = ({ data, yVariable }) => {
   const chartRef = useRef(null);
   const xAxisRef = useRef(null);
   const yAxisRef = useRef(null);
+  const [parentHeight, setParentHeight] = useState(0);
 
   useEffect(() => {
-    if (!chartRef.current || !data || data.length === 0) return;
+    const updateParentHeight = () => {
+      setParentHeight(chartRef.current.parentElement.clientHeight);
+    };
 
-    const parentHeight = chartRef.current.parentElement.clientHeight;
+    updateParentHeight();
+    window.addEventListener("resize", updateParentHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateParentHeight);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!data || data.length === 0) return;
+
     const margin = { top: 20, right: 20, bottom: 70, left: 40 };
-    const height = parentHeight - margin.top - margin.bottom;
     const width = 400 - margin.left - margin.right;
+    const height = parentHeight - margin.top - margin.bottom;
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.day))
@@ -30,9 +43,10 @@ const BarChart = ({ data, yVariable }) => {
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    svg.selectAll(".bar")
+    const bars = svg.selectAll(".bar")
       .data(data)
-      .enter().append("rect")
+      .enter()
+      .append("rect")
       .attr("class", "bar")
       .attr("x", d => xScale(d.day))
       .attr("width", xScale.bandwidth())
@@ -56,7 +70,10 @@ const BarChart = ({ data, yVariable }) => {
       yAxisRef.current.call(d3.axisLeft(yScale));
     }
 
-  }, [data, yVariable]);
+    return () => {
+      bars.remove();
+    };
+  }, [data, yVariable, parentHeight]);
 
   return <svg ref={chartRef}></svg>;
 };
